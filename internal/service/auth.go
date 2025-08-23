@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/Zipklas/task-tracker/internal/domain"
 	"github.com/Zipklas/task-tracker/internal/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -20,6 +22,12 @@ func NewAuthService(userRepo repository.UserRepository) AuthService {
 }
 
 func (s *authService) Register(username, password string) (*domain.User, error) {
+
+	// Валидация
+	if username == "" || password == "" {
+		return nil, errors.New("username and password are required")
+	}
+
 	// Хэширование пароля
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -39,13 +47,19 @@ func (s *authService) Register(username, password string) (*domain.User, error) 
 }
 
 func (s *authService) Login(username, password string) (*domain.User, error) {
+
+	// Валидация
+	if username == "" || password == "" {
+		return nil, errors.New("username and password are required")
+	}
+
 	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid credentials")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, err
+		return nil, errors.New("invalid credentials")
 	}
 
 	return user, nil

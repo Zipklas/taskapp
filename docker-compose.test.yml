@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  postgres_test:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: taskapp_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5433:5432"
+
+  kafka_test:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper_test
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_test:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+    ports:
+      - "9093:9093"
+
+  zookeeper_test:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
